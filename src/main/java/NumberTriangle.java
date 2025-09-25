@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -109,22 +111,40 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
+        List<List<NumberTriangle>> rows = new ArrayList<>();
 
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
         NumberTriangle top = null;
 
         String line = br.readLine();
         while (line != null) {
+            // Split the line into individual numbers
+            String[] numbers = line.trim().split("\\s+");
+            List<NumberTriangle> currentRow = new ArrayList<>();
 
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
+            // Create NumberTriangle objects for each number in this row
+            for (String numStr : numbers) {
+                int value = Integer.parseInt(numStr);
+                currentRow.add(new NumberTriangle(value));
+            }
 
-            // TODO process the line
+            // If this is not the first row, connect to the previous row
+            if (!rows.isEmpty()) {
+                List<NumberTriangle> previousRow = rows.get(rows.size() - 1);
 
-            //read the next line
+                // Each node in current row connects to two nodes in previous row
+                for (int i = 0; i < previousRow.size(); i++) {
+                    // Current row has one more element than previous row
+                    // So element i in previous row connects to elements i and i+1 in current row
+                    NumberTriangle parent = previousRow.get(i);
+                    parent.setLeft(currentRow.get(i));      // left child
+                    parent.setRight(currentRow.get(i + 1)); // right child
+                }
+            } else {
+                // This is the first row - set the top node
+                top = currentRow.get(0);
+            }
+
+            rows.add(currentRow);
             line = br.readLine();
         }
         br.close();
